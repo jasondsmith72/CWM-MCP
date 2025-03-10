@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 /**
  * Executes a PowerShell command and returns the result
@@ -41,6 +42,20 @@ function executePowerShell(command) {
 }
 
 /**
+ * Checks if the ConnectWiseManageAPI module is available in the modules directory
+ * @returns {Promise<boolean>} - True if the module is available locally
+ */
+async function checkLocalModuleAvailability() {
+  const moduleDir = path.join(__dirname, 'modules', 'ConnectWiseManageAPI');
+  try {
+    return fs.existsSync(moduleDir);
+  } catch (error) {
+    console.warn('Error checking for local module:', error);
+    return false;
+  }
+}
+
+/**
  * Executes a ConnectWise Manage API command via PowerShell
  * @param {Object} options - Command options
  * @param {string} options.command - The CWM command to run
@@ -49,16 +64,38 @@ function executePowerShell(command) {
  */
 async function executeCWMCommand(options) {
   try {
+    // Check if we have a local module
+    const hasLocalModule = await checkLocalModuleAvailability();
+    
     // Create a PowerShell script that imports the module and runs the command
     const script = `
-      # Check if module is installed
-      if (-not (Get-Module -ListAvailable -Name ConnectWiseManageAPI)) {
+      # Check if module is installed globally
+      $moduleInstalled = $false
+      
+      ${hasLocalModule ? `
+      # Check if we have a local module
+      $localModulePath = "${path.join(__dirname, 'modules', 'ConnectWiseManageAPI').replace(/\\/g, '\\\\')}"
+      if (Test-Path $localModulePath) {
+        Write-Verbose "Using local ConnectWiseManageAPI module from $localModulePath"
+        Import-Module "$localModulePath"
+        $moduleInstalled = $true
+      }
+      ` : ''}
+      
+      # If no local module, try global module
+      if (-not $moduleInstalled) {
+        if (Get-Module -ListAvailable -Name ConnectWiseManageAPI) {
+          Write-Verbose "Using global ConnectWiseManageAPI module"
+          Import-Module ConnectWiseManageAPI
+          $moduleInstalled = $true
+        }
+      }
+      
+      # If module is still not installed, exit with error
+      if (-not $moduleInstalled) {
         Write-Error "ConnectWiseManageAPI module is not installed"
         exit 1
       }
-
-      # Import the module
-      Import-Module ConnectWiseManageAPI
 
       # Connect to the CWM server if not already connected
       if (-not $CWMServerConnection) {
