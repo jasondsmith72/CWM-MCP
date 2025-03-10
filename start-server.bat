@@ -1,0 +1,3 @@
+@echo off
+echo Starting ConnectWise Manage MCP Server...
+npm start
