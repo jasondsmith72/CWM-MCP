@@ -24,13 +24,19 @@ This is a Model Context Protocol (MCP) server for the ConnectWise Manage API.
 
 3. Install the ConnectWiseManageAPI PowerShell module using one of these methods:
 
-   **Option 1:** Install the module globally via PowerShell Gallery
+   **Option 1 (Recommended):** Bundle the module with the MCP server (no external installation required)
+   ```powershell
+   # Run in PowerShell
+   .\install-module.ps1 -Bundle
+   ```
+   
+   **Option 2:** Install the module globally via PowerShell Gallery
    ```powershell
    # Run in PowerShell as Administrator
    Install-Module 'ConnectWiseManageAPI'
    ```
    
-   **Option 2:** Install the module locally to the project using the provided script
+   **Option 3:** Install the module locally via Git
    ```powershell
    # Run in PowerShell
    .\install-module.ps1 -Local
@@ -153,14 +159,25 @@ Key components:
 
 1. **server.js** - The main Express.js server that implements the MCP endpoints
 2. **powershell-bridge.js** - A bridge module that executes PowerShell commands and converts between JSON and PowerShell formats
-3. **modules/ConnectWiseManageAPI** - (Optional) Local copy of the ConnectWiseManageAPI module
+3. **fetch-module.ps1** - Script to download and bundle the ConnectWiseManageAPI module with the server
+4. **modules/ConnectWiseManageAPI** - Directory where the ConnectWiseManageAPI module is stored when bundled
 
 ## Module Loading
 
 The server will attempt to load the ConnectWiseManageAPI module in the following order:
 
-1. Local module in the `modules/ConnectWiseManageAPI` directory (if installed with `-Local` option)
-2. Global module installed in the PowerShell module path
+1. Bundled module in the `modules/ConnectWiseManageAPI` directory (if installed with `-Bundle` option)
+2. Local module in the `modules/ConnectWiseManageAPI` directory (if installed with `-Local` option)
+3. Global module installed in the PowerShell module path
+
+## Troubleshooting
+
+If you encounter issues with the ConnectWiseManageAPI module:
+
+1. Try running the bundled installation option: `.\install-module.ps1 -Bundle`
+2. Check if the module was correctly downloaded to the `modules/ConnectWiseManageAPI` directory
+3. If using the global installation method, ensure you have administrator privileges
+4. Check Windows PowerShell execution policy with `Get-ExecutionPolicy`
 
 ## License
 
