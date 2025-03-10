@@ -6,40 +6,55 @@ This is a Model Context Protocol (MCP) server for the ConnectWise Manage API.
 
 1. Node.js (v14 or higher)
 2. PowerShell 5.1 or higher
-3. ConnectWiseManageAPI PowerShell module installed
+3. ConnectWiseManageAPI PowerShell module (see installation options below)
 4. ConnectWise Manage API credentials
 
 ## Installation
 
 1. Clone or download this repository
-2. Install the required dependencies:
+   ```
+   git clone https://github.com/jasondsmith72/CWM-MCP.git
+   cd CWM-MCP
+   ```
 
-```
-npm install
-```
+2. Install the required Node.js dependencies:
+   ```
+   npm install
+   ```
 
-3. Configure your environment variables by copying `.env.example` to `.env` and editing the values:
+3. Install the ConnectWiseManageAPI PowerShell module using one of these methods:
 
-```
-PORT=3000
-CWM_SERVER=your-cwm-server
-CWM_COMPANY=your-company
-CWM_PUBKEY=your-public-key
-CWM_PRIVATEKEY=your-private-key
-CWM_CLIENTID=your-client-id
-```
+   **Option 1:** Install the module globally via PowerShell Gallery
+   ```powershell
+   # Run in PowerShell as Administrator
+   Install-Module 'ConnectWiseManageAPI'
+   ```
+   
+   **Option 2:** Install the module locally to the project using the provided script
+   ```powershell
+   # Run in PowerShell
+   .\install-module.ps1 -Local
+   ```
 
-4. Start the server:
+4. Configure your environment variables by copying `.env.example` to `.env` and editing the values:
+   ```
+   PORT=3000
+   CWM_SERVER=your-cwm-server
+   CWM_COMPANY=your-company
+   CWM_PUBKEY=your-public-key
+   CWM_PRIVATEKEY=your-private-key
+   CWM_CLIENTID=your-client-id
+   ```
 
-```
-npm start
-```
+5. Start the server:
+   ```
+   npm start
+   ```
 
-Or run the included batch file:
-
-```
-start-server.bat
-```
+   Or run the included batch file:
+   ```
+   start-server.bat
+   ```
 
 ## Usage
 
@@ -138,6 +153,14 @@ Key components:
 
 1. **server.js** - The main Express.js server that implements the MCP endpoints
 2. **powershell-bridge.js** - A bridge module that executes PowerShell commands and converts between JSON and PowerShell formats
+3. **modules/ConnectWiseManageAPI** - (Optional) Local copy of the ConnectWiseManageAPI module
+
+## Module Loading
+
+The server will attempt to load the ConnectWiseManageAPI module in the following order:
+
+1. Local module in the `modules/ConnectWiseManageAPI` directory (if installed with `-Local` option)
+2. Global module installed in the PowerShell module path
 
 ## License
 
