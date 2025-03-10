@@ -2,7 +2,8 @@
 
 param(
     [switch]$Local,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$Bundle
 )
 
 $ErrorActionPreference = "Stop"
@@ -70,8 +71,32 @@ function Install-GlobalModule {
     }
 }
 
-if ($Local) {
+function Install-BundledModule {
+    Write-Host "Checking for bundled module..." -ForegroundColor Cyan
+    
+    # Check if fetch-module.ps1 exists
+    $fetchScriptPath = Join-Path $PSScriptRoot "fetch-module.ps1"
+    if (Test-Path $fetchScriptPath) {
+        Write-Host "Fetching the ConnectWiseManageAPI module using fetch-module.ps1..." -ForegroundColor Yellow
+        try {
+            & $fetchScriptPath -Force:$Force
+        }
+        catch {
+            Write-Error "Failed to fetch module: $_"
+            throw
+        }
+    } 
+    else {
+        Write-Error "The fetch-module.ps1 script was not found. Make sure it exists in the same directory as this script."
+    }
+}
+
+if ($Bundle) {
+    Install-BundledModule
+}
+elseif ($Local) {
     Install-LocalModule
-} else {
+} 
+else {
     Install-GlobalModule
 }
