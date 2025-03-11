@@ -12,55 +12,75 @@ This is a Model Context Protocol (MCP) server for the ConnectWise Manage API.
 ## Installation
 
 1. Clone or download this repository
-   ```
-   git clone https://github.com/jasondsmith72/CWM-MCP.git
-   cd CWM-MCP
-   ```
 
+   ```
+   git clone https://github.com/jasondsmith72/CWM-MCP.git cd CWM-MCP
+   ```
 2. Install the required Node.js dependencies:
+
    ```
    npm install
    ```
-
 3. Install the ConnectWiseManageAPI PowerShell module using one of these methods:
 
-   **Option 1 (Recommended):** Bundle the module with the MCP server (no external installation required)
-   ```powershell
-   # Run in PowerShell
-   .\install-module.ps1 -Bundle
+   Option 1 (Recommended): Bundle the module with the MCP server (no external installation required)
+
    ```
-   
-   **Option 2:** Install the module globally via PowerShell Gallery
-   ```powershell
-   # Run in PowerShell as Administrator
-   Install-Module 'ConnectWiseManageAPI'
-   ```
-   
-   **Option 3:** Install the module locally via Git
-   ```powershell
-   # Run in PowerShell
-   .\install-module.ps1 -Local
+   # Run in PowerShell .\install-module.ps1 -Bundle
    ```
 
-4. Configure your environment variables by copying `.env.example` to `.env` and editing the values:
+   Option 2: Install the module globally via PowerShell Gallery
+
    ```
-   PORT=3000
-   CWM_SERVER=your-cwm-server
-   CWM_COMPANY=your-company
-   CWM_PUBKEY=your-public-key
-   CWM_PRIVATEKEY=your-private-key
-   CWM_CLIENTID=your-client-id
+   # Run in PowerShell as Administrator Install-Module 'ConnectWiseManageAPI'
    ```
 
+   Option 3: Install the module locally via Git
+
+   ```
+   # Run in PowerShell .\install-module.ps1 -Local
+   ```
+4. Configure your environment variables by copying .env.example to .env and editing the values:
+
+   ```
+   PORT=3000 CWM_SERVER=your-cwm-server CWM_COMPANY=your-company CWM_PUBKEY=your-public-key CWM_PRIVATEKEY=your-private-key CWM_CLIENTID=your-client-id
+   ```
 5. Start the server:
+
    ```
    npm start
    ```
 
    Or run the included batch file:
+
    ```
    start-server.bat
    ```
+
+6. Configure Claude Desktop (manual post-installation step):
+   
+   To integrate with Claude Desktop, copy the `claude_desktop_config.json` file to your Claude Desktop configuration directory:
+   
+   ```
+   # Windows (default location)
+   C:\Users\<YourUsername>\AppData\Roaming\Claude\claude_desktop_config.json
+   ```
+   
+   The configuration file contains:
+   
+   ```json
+   {
+     "mcpServers": [
+       {
+         "name": "ConnectWise Manage MCP",
+         "description": "MCP server for ConnectWise Manage API integration",
+         "proxyUrl": "http://localhost:3000"
+       }
+     ]
+   }
+   ```
+   
+   This configuration allows Claude Desktop to connect to your local MCP server and access ConnectWise Manage data.
 
 ## Usage
 
@@ -73,11 +93,9 @@ POST /context
 ```
 
 Response:
-```json
-{
-  "contextId": "abc123",
-  "status": "created"
-}
+
+```
+{ "contextId": "abc123", "status": "created" }
 ```
 
 ### Connecting to ConnectWise Manage
@@ -87,14 +105,9 @@ POST /context/:contextId/connect
 ```
 
 Body (optional, will use .env values if not provided):
-```json
-{
-  "server": "na.myconnectwise.net",
-  "company": "your-company",
-  "pubKey": "your-public-key",
-  "privateKey": "your-private-key",
-  "clientId": "your-client-id"
-}
+
+```
+{ "server": "na.myconnectwise.net", "company": "your-company", "pubKey": "your-public-key", "privateKey": "your-private-key", "clientId": "your-client-id" }
 ```
 
 ### Getting System Info
@@ -110,10 +123,9 @@ POST /context/:contextId/getCompanies
 ```
 
 Body (optional):
-```json
-{
-  "conditions": "name like '%acme%'"
-}
+
+```
+{ "conditions": "name like '%acme%'" }
 ```
 
 ### Getting Tickets
@@ -123,10 +135,9 @@ POST /context/:contextId/getTickets
 ```
 
 Body (optional):
-```json
-{
-  "conditions": "status='Open'"
-}
+
+```
+{ "conditions": "status='Open'" }
 ```
 
 ### Executing Custom Commands
@@ -136,13 +147,9 @@ POST /context/:contextId/executeCommand
 ```
 
 Body:
-```json
-{
-  "command": "Get-CWMMember",
-  "params": {
-    "Condition": "identifier='admin'"
-  }
-}
+
+```
+{ "command": "Get-CWMMember", "params": { "Condition": "identifier='admin'" } }
 ```
 
 ### Deleting a Context
@@ -157,27 +164,27 @@ This MCP server acts as a bridge between the Model Context Protocol and the Conn
 
 Key components:
 
-1. **server.js** - The main Express.js server that implements the MCP endpoints
-2. **powershell-bridge.js** - A bridge module that executes PowerShell commands and converts between JSON and PowerShell formats
-3. **fetch-module.ps1** - Script to download and bundle the ConnectWiseManageAPI module with the server
-4. **modules/ConnectWiseManageAPI** - Directory where the ConnectWiseManageAPI module is stored when bundled
+1. server.js - The main Express.js server that implements the MCP endpoints
+2. powershell-bridge.js - A bridge module that executes PowerShell commands and converts between JSON and PowerShell formats
+3. fetch-module.ps1 - Script to download and bundle the ConnectWiseManageAPI module with the server
+4. modules/ConnectWiseManageAPI - Directory where the ConnectWiseManageAPI module is stored when bundled
 
 ## Module Loading
 
 The server will attempt to load the ConnectWiseManageAPI module in the following order:
 
-1. Bundled module in the `modules/ConnectWiseManageAPI` directory (if installed with `-Bundle` option)
-2. Local module in the `modules/ConnectWiseManageAPI` directory (if installed with `-Local` option)
+1. Bundled module in the modules/ConnectWiseManageAPI directory (if installed with -Bundle option)
+2. Local module in the modules/ConnectWiseManageAPI directory (if installed with -Local option)
 3. Global module installed in the PowerShell module path
 
 ## Troubleshooting
 
 If you encounter issues with the ConnectWiseManageAPI module:
 
-1. Try running the bundled installation option: `.\install-module.ps1 -Bundle`
-2. Check if the module was correctly downloaded to the `modules/ConnectWiseManageAPI` directory
+1. Try running the bundled installation option: .\install-module.ps1 -Bundle
+2. Check if the module was correctly downloaded to the modules/ConnectWiseManageAPI directory
 3. If using the global installation method, ensure you have administrator privileges
-4. Check Windows PowerShell execution policy with `Get-ExecutionPolicy`
+4. Check Windows PowerShell execution policy with Get-ExecutionPolicy
 
 ## License
 
