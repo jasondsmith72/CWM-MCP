@@ -1,0 +1,9 @@
+{
+  "mcpServers": [
+    {
+      "name": "ConnectWise Manage MCP",
+      "description": "MCP server for ConnectWise Manage API integration",
+      "proxyUrl": "http://localhost:3000"
+    }
+  ]
+}
